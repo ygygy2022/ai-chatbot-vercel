@@ -7,8 +7,6 @@ RUN apk add --no-cache python3 make g++
 # Install pnpm
 RUN npm install -g pnpm
 
-# Set the working directory
-WORKDIR /app
 
 # Copy package.json and package-lock.json
 COPY package*.json ./
@@ -23,4 +21,4 @@ COPY . .
 EXPOSE 3000
 
 # Command to run your app
-CMD ["pnpm", "build"]
+CMD ["pnpm", "start"]
