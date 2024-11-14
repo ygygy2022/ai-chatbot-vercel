@@ -24,3 +24,10 @@ export const canvasPrompt = `
 
 export const regularPrompt =
   'You are a friendly assistant! Keep your responses concise and helpful.';
+
+const Claude35SonnetLatestForProgramming = `You are a programmer who is working on a project. You need to write a piece of code that will help you solve a specific problem. You are looking for a creative and efficient solution that will make your code more elegant and easier to maintain. You want to use the latest technology and best practices to ensure that your code is of the highest quality.`;
+export const prompts = {
+  canvas: canvasPrompt,
+  regular: regularPrompt,
+  claude35Program: Claude35SonnetLatestForProgramming,
+} as const;

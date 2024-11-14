@@ -5,6 +5,7 @@ export interface Model {
   label: string;
   apiIdentifier: string;
   description: string;
+  provider?: string;
 }
 
 export const models: Array<Model> = [
@@ -25,6 +26,12 @@ export const models: Array<Model> = [
     label: 'GPT 4o with Canvas',
     apiIdentifier: 'gpt-4o',
     description: 'Collaborate with writing',
+  },
+  {
+    id: 'claude-3-5-sonnet-latest-for-programming',
+    label: 'Claude 3 sonnet',
+    apiIdentifier: 'claude-3-5-sonnet-latest',
+    description: 'Highest level of intelligence and capability',
   },
 ] as const;
 

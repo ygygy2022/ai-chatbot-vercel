@@ -8,9 +8,9 @@ import {
 } from 'ai';
 import { z } from 'zod';
 
-import { customModel } from '@/ai';
-import { models } from '@/ai/models';
-import { canvasPrompt, regularPrompt } from '@/ai/prompts';
+import { customOpenAIModel, customAnthropicModel } from '@/ai';
+import { models, Model } from '@/ai/models';
+import { prompts } from '@/ai/prompts';
 import { auth } from '@/app/(auth)/auth';
 import {
   deleteChatById,
@@ -58,13 +58,43 @@ export async function POST(request: Request) {
   if (!model) {
     return new Response('Model not found', { status: 404 });
   }
-
+  // Model selection logic
+  const getModelInstance = (model: Model) => {
+    switch (model.provider) {
+      case 'openai':
+        return customOpenAIModel(model.apiIdentifier);
+      case 'anthropic':
+        return customAnthropicModel(model.apiIdentifier);
+      // case 'cohere':
+      //   return customCohereModel(model.apiIdentifier);
+      // case 'replicate':
+      //   return customReplicateModel(model.apiIdentifier);
+      // case 'huggingface':
+      //   return customHuggingFaceModel(model.apiIdentifier);
+      default:
+        throw new Error(`Unsupported model provider: ${model.provider}`);
+    }
+  };
+  // Model-specific prompts
+  const getSystemPrompt = (model: any) => {
+    switch (model.id) {
+      case 'gpt-4-canvas':
+        return prompts.canvas;
+      case 'claude-3':
+        return prompts.claude35Program;
+      default:
+        return prompts.regular;
+    }
+  };
   const coreMessages = convertToCoreMessages(messages);
   const streamingData = new StreamData();
-
+  // call the model
+  const customModel = getModelInstance(model);
+  // get the system prompt
+  const regularPrompt = getSystemPrompt(model);
   const result = await streamText({
-    model: customModel(model.apiIdentifier),
-    system: modelId === 'gpt-4o-canvas' ? canvasPrompt : regularPrompt,
+    model: customModel,
+    system: regularPrompt,
     messages: coreMessages,
     maxSteps: 5,
     experimental_activeTools:
@@ -110,7 +140,7 @@ export async function POST(request: Request) {
           });
 
           const { fullStream } = await streamText({
-            model: customModel(model.apiIdentifier),
+            model: customModel,
             system:
               'Write about the given topic. Markdown is supported. Use headings wherever appropriate.',
             prompt: title,
@@ -174,7 +204,7 @@ export async function POST(request: Request) {
           });
 
           const { fullStream } = await streamText({
-            model: customModel(model.apiIdentifier),
+            model: customModel,
             system:
               'You are a helpful writing assistant. Based on the description, please update the piece of writing.',
             messages: [
@@ -239,7 +269,7 @@ export async function POST(request: Request) {
           > = [];
 
           const { elementStream } = await streamObject({
-            model: customModel(model.apiIdentifier),
+            model: customModel,
             system:
               'You are a help writing assistant. Given a piece of writing, please offer suggestions to improve the piece of writing and describe the change. It is very important for the edits to contain full sentences instead of just words.',
             prompt: document.content,
