@@ -8,7 +8,7 @@ import {
 } from 'ai';
 import { z } from 'zod';
 
-import { customOpenAIModel, customAnthropicModel } from '@/ai';
+import { customModels } from '@/ai';
 import { models, Model } from '@/ai/models';
 import { prompts } from '@/ai/prompts';
 import { auth } from '@/app/(auth)/auth';
@@ -62,9 +62,11 @@ export async function POST(request: Request) {
   const getModelInstance = (model: Model) => {
     switch (model.provider) {
       case 'openai':
-        return customOpenAIModel(model.apiIdentifier);
+        return customModels.openai(model.apiIdentifier);
       case 'anthropic':
-        return customAnthropicModel(model.apiIdentifier);
+        return customModels.anthropic(model.apiIdentifier);
+      case 'google':
+        return customModels.google(model.apiIdentifier);
       // case 'cohere':
       //   return customCohereModel(model.apiIdentifier);
       // case 'replicate':
@@ -82,6 +84,8 @@ export async function POST(request: Request) {
         return prompts.canvas;
       case 'claude-3':
         return prompts.claude35Program;
+      case 'gemini-1.5-pro-programming':
+        return prompts.googleProgramming;
       default:
         return prompts.regular;
     }
